@@ -1,8 +1,9 @@
 const { Router } = require('express');
+const { request, response } = require('../app');
 const pool = require('../db');
 const router = Router();
 
-
+// get all
 router.get('/',(request, response, next)=>{
     pool.query('SELECT * FROM monsters ORDER BY id ASC', (err, res)=>{
         if(err) next(err);
@@ -11,6 +12,7 @@ router.get('/',(request, response, next)=>{
     });
 });
 
+// get 1
 
 router.get('/:id',(request, response, next)=>{
     const { id } = request.params;
@@ -22,7 +24,7 @@ router.get('/:id',(request, response, next)=>{
 });
 
 
-
+// post
 router.post('/',(request, response, next)=>{
     const {name, personality} = request.body;
     pool.query(
@@ -34,6 +36,7 @@ router.post('/',(request, response, next)=>{
         });
 });
 
+// update
 router.put('/:id',(request, response, next)=>{
     const{ id }=request.params;
     const {name, personality}=request.body;
@@ -52,8 +55,18 @@ router.put('/:id',(request, response, next)=>{
             response.json('Updated');
         }
     );});
-
-   
 });
+
+router.delete('/:id',(request, response, next) =>{
+    const {id} = request.params;
+
+    pool.query(
+        'DELETE FROM monsters WHERE id=($1)',
+        [id],(err, res)=>{
+            if(err) return next(err);
+            response.json('DELETED');
+        }
+    )
+})
 
 module.exports = router;
