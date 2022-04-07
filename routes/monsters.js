@@ -1,6 +1,6 @@
-const {Router} = require('express');
-const router = Router();
+const { Router } = require('express');
 const pool = require('../db');
+const router = Router();
 
 
 router.get('/',(request, response, next)=>{
@@ -8,16 +8,43 @@ router.get('/',(request, response, next)=>{
         if(err) next(err);
 
         response.json(res.rows);
-        });
+    });
 });
 
 
 router.get('/:id',(request, response, next)=>{
-const{ id}=request.params;
-pool.query('SELECT * FROM monsters WHERE id = $1', [id], (err, res) =>{
-if(err) return next(err);
-response.json(res.rows);
-});
+    const { id } = request.params;
+
+    pool.query('SELECT * FROM monsters WHERE id = $1', [id], (err, res) =>{
+    if(err) return next(err);
+    response.json(res.rows);
+    });
 });
 
-module.exports =router;
+
+
+router.post('/',(request, response, next)=>{
+    const {name, personality} = request.body;
+    pool.query(
+        'INSERT INTO monsters(name, personality) VALUES($1, $2)',
+        [name, personality],
+        (err, res)=>{
+            if(err) return next(err);
+            response.json('Posted');
+        });
+});
+
+router.put('/:id',(request, response, next)=>{
+    const{ id }=request.params;
+    const {name, personality}=request.body;
+    pool.query(
+    'UPDATE monsters SET name=($1), personality=($2) WHERE id = ($3)',
+    [name, personality, id],
+    (err, res)=>{
+        if(err) return next(err);
+        response.json('Updated');
+    }
+);
+});
+
+module.exports = router;
